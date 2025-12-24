@@ -1,0 +1,46 @@
+[project]
+name = "rag-pdf-search"
+version = "0.1.0"
+description = "RAG system for semantic search over PDF documents from AWS S3"
+readme = "README.md"
+requires-python = ">=3.13"
+authors = [
+    {name = "Muthukumar", email = "your.email@example.com"}
+]
+keywords = ["rag", "langchain", "chromadb", "pdf", "semantic-search", "embeddings"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Programming Language :: Python :: 3.13",
+]
+
+dependencies = [
+    "langchain>=1.2.0",
+    "langchain-core>=1.2.4",
+    "langchain-community>=0.4.1",
+    "pypdf>=6.4.2",
+    "pymupdf>=1.26.7",
+    "ipykernel>=7.1.0",
+    "pydantic>=2.12.5",
+    "boto3>=1.42.16",
+    "sentence-transformers>=5.2.0",
+    "chromadb>=1.4.0",
+    "numpy>=2.0.0",
+    "scikit-learn>=1.5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "jupyter>=1.0.0",
+    "pytest>=8.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/cmuthukumar/rag-pdf-search"
+Repository = "https://github.com/cmuthukumar/rag-pdf-search"
+Issues = "https://github.com/cmuthukumar/rag-pdf-search/issues"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"

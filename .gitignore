@@ -1,0 +1,72 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+build/
+dist/
+wheels/
+*.egg-info
+*.egg
+
+# Virtual environments
+rag/
+.venv
+venv/
+env/
+ENV/
+
+# Data directories - don't commit large files
+data/vector_store/
+data/pdfs/
+*.pdf
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# IDE and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# AWS credentials
+.aws/
+*.pem
+
+# Environment variables
+.env
+.env.local
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Python version files
+.python-version
+
+# Package manager lock files (optional)
+uv.lock
+poetry.lock
+Pipfile.lock
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Model cache
+.cache/
+models/
+
