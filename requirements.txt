@@ -24,8 +24,3 @@ ipykernel>=7.1.0
 
 # Optional: For Jupyter notebooks
 # jupyter>=1.0.0
-sentence-transformers
-faiss-cpu
-chromadb
-boto3
-unstructured
