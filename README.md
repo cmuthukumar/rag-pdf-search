@@ -9,6 +9,7 @@ A Retrieval Augmented Generation (RAG) system that loads PDF documents from AWS 
 - **Vector Embeddings**: Uses Sentence Transformers (all-MiniLM-L6-v2) for high-quality embeddings
 - **Persistent Vector Store**: ChromaDB for efficient similarity search and persistence
 - **Semantic Search**: Query documents using natural language with similarity scoring
+- **LLM Integration**: Complete RAG pipeline with Hugging Face open source models (FLAN-T5) for question answering
 
 ## 📋 Prerequisites
 
@@ -44,6 +45,7 @@ A Retrieval Augmented Generation (RAG) system that loads PDF documents from AWS 
 - PyPDF & PyMuPDF (PDF parsing)
 - Boto3 (AWS S3 integration)
 - NumPy & scikit-learn (ML utilities)
+- Transformers & PyTorch (LLM inference)
 
 ## 🔧 Configuration
 
@@ -135,6 +137,7 @@ results = rag_retriever.retrieve(
 
 ### Step 3: Query Your Documents
 
+#### Option A: Semantic Search Only
 ```python
 # Search for relevant documents
 results = rag_retriever.retrieve(
@@ -151,6 +154,33 @@ for doc in results:
     print(f"Content: {doc['content'][:200]}...\n")
 ```
 
+#### Option B: RAG with LLM (Question Answering)
+```python
+# Initialize RAG with LLM
+rag_llm = RAGWithLLM(
+    retriever=rag_retriever,
+    model_name="google/flan-t5-base"  # or "google/flan-t5-small" for faster inference
+)
+
+# Ask questions in natural language
+result = rag_llm.generate_answer(
+    query="What is the main topic discussed in the documents?",
+    top_k=3,
+    score_threshold=0.3,
+    max_length=256
+)
+
+# View the answer
+print(f"Question: {result['query']}")
+print(f"Answer: {result['answer']}")
+print(f"Sources: {result['num_sources']} documents used")
+
+# View detailed sources
+for i, source in enumerate(result['sources'], 1):
+    print(f"\n{i}. {source['source_file']} (Page {source['page']})")
+    print(f"   Similarity: {source['similarity_score']:.4f}")
+```
+
 ## 📊 System Architecture
 
 ```
@@ -164,6 +194,19 @@ for doc in results:
 │   Query     │────▶│  Embeddings  │────▶│  ChromaDB   │
 │  (Search)   │     │   (Model)    │     │   (Store)   │
 └─────────────┘     └──────────────┘     └─────────────┘
+                            │                   │
+                            └────────┬──────────┘
+                                     ▼
+                            ┌──────────────┐
+                            │ RAG Retriever│
+                            │  (Top-K)     │
+                            └──────────────┘
+                                     │
+                                     ▼
+                            ┌──────────────┐
+                            │  LLM (FLAN-T5)│────▶ Answer + Sources
+                            │  (Generate)  │
+                            └──────────────┘
 ```
 
 ## 🔍 How It Works
@@ -173,6 +216,7 @@ for doc in results:
 3. **Embedding Generation**: Uses `all-MiniLM-L6-v2` model (384-dimensional embeddings)
 4. **Vector Storage**: Stores embeddings in ChromaDB with metadata
 5. **Retrieval**: Finds top-k most similar chunks using L2 distance
+6. **Answer Generation**: (Optional) Uses FLAN-T5 LLM to generate natural language answers from retrieved context
 
 ## ⚙️ Configuration Options
 
@@ -207,6 +251,24 @@ results = rag_retriever.retrieve(
 | 0.7+ | Very strict | Exact matches only |
 | 0.4-0.7 | Balanced | Most use cases |
 | 0.1-0.4 | Permissive | Exploratory search |
+
+### LLM Model Selection
+```python
+# FLAN-T5 Small - Fast inference, lower quality
+rag_llm = RAGWithLLM(retriever=rag_retriever, model_name="google/flan-t5-small")
+
+# FLAN-T5 Base - Balanced (recommended)
+rag_llm = RAGWithLLM(retriever=rag_retriever, model_name="google/flan-t5-base")
+
+# FLAN-T5 Large - Best quality, slower
+rag_llm = RAGWithLLM(retriever=rag_retriever, model_name="google/flan-t5-large")
+```
+
+| Model | Size | Speed | Quality | Use Case |
+|-------|------|-------|---------|----------|
+| flan-t5-small | 80M | Fast | Good | Development/testing |
+| flan-t5-base | 250M | Medium | Better | Production (balanced) |
+| flan-t5-large | 780M | Slow | Best | High-quality answers |
 
 ## 📁 Project Structure
 
@@ -254,6 +316,20 @@ export AWS_SECRET_ACCESS_KEY=your_secret
 chunk_size=500  # Smaller chunks
 ```
 
+### Issue: LLM loading errors or out of memory
+**Solutions:**
+1. Use smaller model: `model_name="google/flan-t5-small"`
+2. For CPU-only systems, FLAN-T5 base works well
+3. Ensure you have sufficient RAM (4GB+ recommended)
+4. Install torch: `pip install torch transformers`
+
+### Issue: LLM answers are generic or incorrect
+**Solutions:**
+1. Lower `score_threshold` to retrieve more context
+2. Increase `top_k` to get more documents
+3. Adjust `chunk_size` for better context chunks
+4. Try a larger model (flan-t5-large)
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
@@ -267,4 +343,6 @@ This project is open source and available under the MIT License.
 - [LangChain](https://github.com/langchain-ai/langchain) for document processing
 - [ChromaDB](https://github.com/chroma-core/chroma) for vector storage
 - [Sentence Transformers](https://github.com/UKPLab/sentence-transformers) for embeddings
+- [Hugging Face](https://huggingface.co/) for FLAN-T5 models and Transformers library
+- [Google Research](https://github.com/google-research/t5x) for FLAN-T5 instruction-tuned models
 
